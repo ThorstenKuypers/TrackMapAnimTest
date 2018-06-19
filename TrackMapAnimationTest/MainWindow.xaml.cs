@@ -16,6 +16,34 @@ using System.Windows.Shapes;
 
 namespace TrackMapAnimationTest
 {
+    class TestPointAnimation : PointAnimationUsingPath
+    {
+        private Point ov;
+        private Point dv;
+
+        protected override Freezable CreateInstanceCore()
+        {
+            return new TestPointAnimation();
+        }
+        protected override Point GetCurrentValueCore(Point defaultOriginValue, Point defaultDestinationValue, AnimationClock animationClock)
+        {
+            Point ret = base.GetCurrentValueCore(defaultOriginValue, defaultDestinationValue, animationClock);
+            ov = defaultOriginValue;
+            dv = defaultDestinationValue;
+
+            var it = animationClock.CurrentProgress;
+            var t = animationClock.CurrentTime;
+
+            Point pos, tg;
+            PathGeometry.GetPointAtFractionLength(it.Value, out pos, out tg);
+            return pos;
+        }
+
+        protected override void OnChanged()
+        {
+            base.OnChanged();
+        }
+    }
     /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>
@@ -24,25 +52,25 @@ namespace TrackMapAnimationTest
         System.Windows.Threading.DispatcherTimer _timer;
         float pos;
         float delta;
-
+        TestPointAnimation pa;
         public MainWindow()
         {
             InitializeComponent();
             _timer = new System.Windows.Threading.DispatcherTimer
             {
-                Interval = TimeSpan.FromMilliseconds(100)
+                Interval = TimeSpan.FromMilliseconds(16)
             };
             _timer.Tick += _timer_Tick;
             pos = 0;
-            delta = 1.0f / 100.0f;
+            delta = 3.0118780942341358733505261374546e-4f;
 
             path1.Freeze();
-            PointAnimationUsingPath pa = new PointAnimationUsingPath();
+            pa = new TestPointAnimation();
             pa.PathGeometry = path1;
-            pa.Duration = TimeSpan.FromSeconds(10);
+            TestPointAnimation.SetDesiredFrameRate(pa, 60);
 
-            _timer.Start();
-            //circ.BeginAnimation(EllipseGeometry.CenterProperty, pa);
+            pa.Duration = TimeSpan.FromSeconds(53.123f);
+
         }
 
         private void _timer_Tick(object sender, EventArgs e)
@@ -57,6 +85,12 @@ namespace TrackMapAnimationTest
 
             circ.SetValue(EllipseGeometry.CenterProperty, p);
             //circ.InvalidateProperty(EllipseGeometry.CenterProperty);
+        }
+
+        private void Path_Loaded(object sender, RoutedEventArgs e)
+        {
+            circ.BeginAnimation(EllipseGeometry.CenterProperty, pa);
+            //_timer.Start();
         }
     }
 }
