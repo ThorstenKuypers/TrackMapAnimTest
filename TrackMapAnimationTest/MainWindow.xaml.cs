@@ -21,15 +21,42 @@ namespace TrackMapAnimationTest
     /// </summary>
     public partial class MainWindow : Window
     {
+        System.Windows.Threading.DispatcherTimer _timer;
+        float pos;
+        float delta;
+
         public MainWindow()
         {
             InitializeComponent();
+            _timer = new System.Windows.Threading.DispatcherTimer
+            {
+                Interval = TimeSpan.FromMilliseconds(100)
+            };
+            _timer.Tick += _timer_Tick;
+            pos = 0;
+            delta = 1.0f / 100.0f;
 
             path1.Freeze();
             PointAnimationUsingPath pa = new PointAnimationUsingPath();
             pa.PathGeometry = path1;
             pa.Duration = TimeSpan.FromSeconds(10);
-            circ.BeginAnimation(EllipseGeometry.CenterProperty, pa);
+
+            _timer.Start();
+            //circ.BeginAnimation(EllipseGeometry.CenterProperty, pa);
+        }
+
+        private void _timer_Tick(object sender, EventArgs e)
+        {
+            if (pos >= 1f)
+                _timer.Stop();
+
+            pos += delta;
+            Point p;
+            Point t;
+            path1.GetPointAtFractionLength(pos, out p, out t);
+
+            circ.SetValue(EllipseGeometry.CenterProperty, p);
+            //circ.InvalidateProperty(EllipseGeometry.CenterProperty);
         }
     }
 }
