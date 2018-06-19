@@ -9,6 +9,7 @@ using System.Windows.Data;
 using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
+using System.Windows.Media.Animation;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
@@ -23,6 +24,12 @@ namespace TrackMapAnimationTest
         public MainWindow()
         {
             InitializeComponent();
+
+            path1.Freeze();
+            PointAnimationUsingPath pa = new PointAnimationUsingPath();
+            pa.PathGeometry = path1;
+            pa.Duration = TimeSpan.FromSeconds(10);
+            circ.BeginAnimation(EllipseGeometry.CenterProperty, pa);
         }
     }
 }
